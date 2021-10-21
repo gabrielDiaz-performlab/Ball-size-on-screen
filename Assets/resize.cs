@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class resize : MonoBehaviour
 {
     // Start is called before the first frame update
@@ -13,47 +15,48 @@ public class resize : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        getPixelWidth();
+        getWidthFromExtents();
         getTrigSizeDegs();
-    }
-
-    public void getPixelWidth()
-    {
-        
-        Renderer rend = GetComponent<Renderer>();
-
-        // Bounds are in 3D worldspace, but worldToScreenPoint projects them into screen space (in pixels).
-        Vector3 posStart = Camera.main.WorldToScreenPoint(new Vector3(rend.bounds.min.x, rend.bounds.min.y, rend.bounds.min.z));
-        Vector3 posEnd = Camera.main.WorldToScreenPoint(new Vector3(rend.bounds.max.x, rend.bounds.max.y, rend.bounds.max.z));
-
-        int pixSize = (int)(posEnd.x - posStart.x);
-        float screenRes = Screen.currentResolution.height;
-        float sphereSizeDegs = Camera.main.fieldOfView * (pixSize / screenRes);
-
-        Debug.Log(Time.frameCount.ToString() + " Pixel width: " + pixSize.ToString());
-        Debug.Log(Time.frameCount.ToString() + " screenRes: " + screenRes.ToString());
-        Debug.Log(Time.frameCount.ToString() + " fov: " + Camera.main.fieldOfView.ToString());
-        Debug.Log(Time.frameCount.ToString() + " sphereSizeDegs: " + sphereSizeDegs.ToString());
-
-        //int widthY = (int)(posEnd.y - posStart.y);
-        Vector3 minVec = new Vector3(rend.bounds.min.x, rend.bounds.min.y, rend.bounds.min.z);
-        Vector3 maxVec = new Vector3(rend.bounds.max.x, rend.bounds.max.y, rend.bounds.max.z);
-
-        Debug.DrawLine(minVec, maxVec, Color.red, 2.5f);
-        
     }
 
     public void getTrigSizeDegs()
     {
 
-        float dist = Vector3.Distance(Camera.main.transform.position, transform.position);
-        //float width = transform.localScale.x;
-        float width = GetComponent<Renderer>().bounds.extents.magnitude;
+        float dist = Vector3.Distance(Camera.main.transform.position, transform.position);        
+        float halfHeight = transform.localScale.y/2.0f;
+        float trigSizeDegs = 2.0f * Mathf.Atan( halfHeight / dist) * Mathf.Rad2Deg;
+        
+        // Debug.Log(Time.frameCount.ToString() + " dist: " + dist.ToString());
+        // Debug.Log(Time.frameCount.ToString() + " radius: " + halfHeight.ToString());
+        Debug.Log(Time.frameCount.ToString() + " trigSizeDegs: " + trigSizeDegs.ToString());
 
-        float sphereSizeDegs = 2.0f * Mathf.Atan(width / dist) * Mathf.Rad2Deg;
-        Debug.Log(Time.frameCount.ToString() + " trigSizeDegs: " + sphereSizeDegs.ToString());
+    }
 
-        //int widthY = (int)(posEnd.y - posStart.y);
+    public void getWidthFromExtents()
+    {
+        
+        Renderer rend = GetComponent<Renderer>();
+
+        Vector3 cen = rend.bounds.center;
+        Vector3 ext = rend.bounds.extents;
+
+        // https://docs.unity3d.com/ScriptReference/Camera.WorldToViewportPoint.html
+        float minY = Camera.main.WorldToViewportPoint(new Vector3(cen.x, cen.y-ext.y, cen.z)).y;
+        float maxY = Camera.main.WorldToViewportPoint(new Vector3(cen.x, cen.y+ext.y, cen.z)).y;
+
+        float normHeight = (maxY-minY);
+        float sizeDegs = Camera.main.fieldOfView * normHeight;
+
+        Debug.Log(Time.frameCount.ToString() + " norm height: " + normHeight.ToString());
+        //Debug.Log(Time.frameCount.ToString() + " Vert screen res: " + screenVertRes.ToString());
+        //Debug.Log(Time.frameCount.ToString() + " fov: " + Camera.main.fieldOfView.ToString());
+        Debug.Log(Time.frameCount.ToString() + " extent size: " + sizeDegs.ToString());
+
+        Vector3 minVec = new Vector3(cen.x, cen.y-ext.y, cen.z);
+        Vector3 maxVec = new Vector3(cen.x, cen.y+ext.y, cen.z);
+
+        Debug.DrawLine(minVec, maxVec, Color.red, 2.5f);
+        
     }
 
 }
