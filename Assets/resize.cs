@@ -15,25 +15,29 @@ public class resize : MonoBehaviour
     void Start()
     {
         
+        previousDistFromViewToBall = Camera.main.transform.InverseTransformPoint(transform.position).magnitude;
+        previousBallLocalXScale = transform.localScale[0];
+    
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        //scaleBallRadiusByGain();
+        scaleBallRadiusByGain();
         getWidthFromExtents();
         getTrigSizeDegs();
 
 
         if ( Input.GetKeyDown(KeyCode.UpArrow))
         {
-            transform.Translate(0.0f, 1.0f, 0.0f);
+            transform.Translate(0.0f, 0.0f, 1.0f);
             return;
         }
 
         if ( Input.GetKeyDown(KeyCode.DownArrow))
         {
-            transform.Translate(0.0f, -1.0f, 0.0f);
+            transform.Translate(0.0f, 0.0f, -1.0f);
             return;
         }
 
